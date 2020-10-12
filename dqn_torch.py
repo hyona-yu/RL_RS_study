@@ -127,7 +127,7 @@ if __name__ == "__main__":
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     episode = 200
-
+    print(action_size)#1, -1
     agent = DQN(state_size, action_size)
     scores = []
 

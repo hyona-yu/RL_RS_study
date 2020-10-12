@@ -4,6 +4,11 @@ import numpy as np
 import torch
 import random
 import math
+import os
+import gym
+import argparse
+from collections import deque
+from tensorboard import SummaryWriter
 
 class HyperParams:
     gamma = 0.99
@@ -40,7 +45,29 @@ class Actor(nn.Module):
         logstd = torch.zeros_like(out)
         std = torch.exp(logstd)
         return out, std, logstd
-        
+
+class Critic(nn.Module):
+    def __init__(self,in,out):
+        self.in = in
+        self.out = out
+        super(Critic,self).__init__()
+        self.l1 = torch.nn.Linear(self.in, hp.hidden)
+        self.l2 = torch.nn.Linear(hp.hidden, hp.hidden)
+        self.l3 = torch.nn.Linear(hp.hidden, self.out)
+        self.tanh = torch.nn.functional.tanh()
+
+        torch.nn.init.xavier_normal_(l1.weight)
+        torch.nn.init.xavier_normal_(l2.weight)
+        torch.nn.init.xavier_normal_(l3.weight)
+
+    def forward(self, x):
+        out = self.l1(x)
+        out = self.tanh(out)
+        out = self.l2(out)
+        out = self.tanh(out)
+        out = self.l3(out)
+        return out
+
 def get_action(mu, std):
     action = torch.normal(mu, std)
     action = action.data.numpy()
